@@ -13,12 +13,11 @@ import collections.abc
 import re
 
 
-
 class PASTIS_Dataset(tdata.Dataset):
-    def __init__(self, folder, norm=True, folds=None, reference_date='2018-09-01', cache=False,
-                 class_mapping=None, target='semantic',  sats=['S2'], mono_date=None):
+    def __init__(self, folder, norm=True, target='semantic', cache=False, folds=None, reference_date='2018-09-01',
+                 class_mapping=None, mono_date=None, sats=['S2']):
         """
-
+        Pytorch Dataset class to load samples from the PASTIS dataset, for semantic and panoptic segmentation.
         Args:
             folder (str): Path to the dataset
             norm (bool): If true, images are standardised using pre-computed channel-wise
@@ -40,9 +39,12 @@ class PASTIS_Dataset(tdata.Dataset):
             cache (bool): If True the loaded samples stay in RAM, default False.
             folds (list, optional): List of ints specifying which of the 5 official folds to load.
             By default (when None is specified) all folds are loaded.
-            class_mapping (dict, optional):
-            mono_date (int or str, optional):
-            sats (list):
+            class_mapping (dict, optional): Dictionary to define a mapping between the defaukt 18 class nomenclature
+            and another class grouping, optional.
+            mono_date (int or str, optional): If provided only one date of the available time series is loaded.
+            If aargument is an int it defines the position of the date that is loaded. If it is a string, it shloud be
+            in format 'YYYY-MM-DD' and the closest available date will be selected.
+            sats (list): defines the satellites to use (only Sentinel-2 is available in v1.0)
         """
         super(PASTIS_Dataset, self).__init__()
         self.folder = folder
@@ -56,7 +58,7 @@ class PASTIS_Dataset(tdata.Dataset):
         self.target = target
         self.sats = sats
 
-        # Get metadata and check dataset completeness
+        # Get metadata
         print('Reading patch metadata . . .')
         self.meta_patch = gpd.read_file(os.path.join(folder, 'metadata.geojson'))
         self.meta_patch.index = self.meta_patch['ID_PATCH'].astype(int)
@@ -150,13 +152,11 @@ class PASTIS_Dataset(tdata.Dataset):
                     np.concatenate([heat[:, :, None], inst[:, :, None], zone[:, :, None], size,
                                     sem_obj[:, :, None], sem_pix[:, :, None]], axis=-1)).float()
 
-
             if self.cache:
                 self.memory[item] = [data, target]
 
         else:
             data, target = self.memory[item]
-
 
         # Retrieve date sequences
         if not self.cache or id_patch not in self.memory_dates.keys():
@@ -180,41 +180,24 @@ class PASTIS_Dataset(tdata.Dataset):
 
 
 def prepare_dates(date_dict, reference_date):
+    """Date formating."""
     d = pd.DataFrame().from_dict(date_dict, orient='index')
     d = d[0].apply(lambda x: (datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:])) - reference_date).days)
     return d.values
 
 
-def compute_norm_vals(folder, sat):
-    norm_vals = {}
-    for fold in range(1, 6):
-        dt = PASTIS_Dataset(folder=folder, norm=False, folds=[fold], sats=[sat])
-        means = []
-        stds = []
-        for i, b in enumerate(dt):
-            print('{}/{}'.format(i, len(dt)), end='\r')
-            data = b[0][0][sat]  # T x C x H x W
-            data = data.permute(1, 0, 2, 3).contiguous()  # C x B x T x H x W
-            means.append(data.view(data.shape[0], -1).mean(dim=-1).numpy())
-            stds.append(data.view(data.shape[0], -1).std(dim=-1).numpy())
-
-        mean = np.stack(means).mean(axis=0).astype(float)
-        std = np.stack(stds).mean(axis=0).astype(float)
-
-        norm_vals['Fold_{}'.format(fold)] = dict(mean=list(mean), std=list(std))
-
-    with open(os.path.join(folder, 'NORM_{}_patch.json'.format(sat)), 'w') as file:
-        file.write(json.dumps(norm_vals, indent=4))
-
-
 np_str_obj_array_pattern = re.compile(r'[SaUO]')
+
 
 def pad_tensor(x, l, pad_value=0):
     padlen = l - x.shape[0]
     pad = [0 for _ in range(2 * len(x.shape[1:]))] + [0, padlen]
     return F.pad(x, pad=pad, value=pad_value)
 
+
 def pad_collate(batch, pad_value=0):
+    # Utility function to be used as collate_fn for the PyTorch dataloader to handle sequences of varying length.
+    # Sequences are padded with zeros by default.
     # modified default_collate from the official pytorch repo
     # https://github.com/pytorch/pytorch/blob/master/torch/utils/data/_utils/collate.py
     elem = batch[0]
@@ -256,5 +239,4 @@ def pad_collate(batch, pad_value=0):
             raise RuntimeError('each element in list of batch should be of equal size')
         transposed = zip(*batch)
         return [pad_collate(samples) for samples in transposed]
-
     raise TypeError('Format not managed : {}'.format(elem_type))
