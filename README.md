@@ -32,6 +32,6 @@ This repository also contains a PyTorch dataset class in `dataloader.py` that ca
 
 ## Documentation
 ### Nomenclature
-![](images/Nomenclature.jp2)
+<img src="images/Nomenclature.jp2" alt="drawing" width="300"/>
 
 ## References
