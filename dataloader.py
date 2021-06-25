@@ -14,10 +14,14 @@ import re
 
 
 class PASTIS_Dataset(tdata.Dataset):
-    def __init__(self, folder, norm=True, target='semantic', cache=False, folds=None, reference_date='2018-09-01',
-                 class_mapping=None, mono_date=None, sats=['S2']):
+    def __init__(self, folder, norm=True, target='semantic', cache=False, mem16=False, folds=None,
+                 reference_date='2018-09-01', class_mapping=None, mono_date=None, sats=['S2']):
         """
         Pytorch Dataset class to load samples from the PASTIS dataset, for semantic and panoptic segmentation.
+        The Dataset yields ((data, dates), target) tuples, where:
+            - data contains the image time series
+            - dates contains the date sequence of the observations expressed in number of days since a reference date
+            - target is the semantic or instance target
         Args:
             folder (str): Path to the dataset
             norm (bool): If true, images are standardised using pre-computed channel-wise
@@ -36,13 +40,15 @@ class PASTIS_Dataset(tdata.Dataset):
                 - the (height, width) size of each parcel
                 - the semantic label of each parcel
                 - the semantic label of each pixel
-            cache (bool): If True the loaded samples stay in RAM, default False.
+            cache (bool): If True, the loaded samples stay in RAM, default False.
+            mem16 (bool): Additional argument for cache. If True, the image time series tensors are stored
+            in half precision in RAM for efficiency. They are cast back to float32 when returned by __getitem__.
             folds (list, optional): List of ints specifying which of the 5 official folds to load.
             By default (when None is specified) all folds are loaded.
             class_mapping (dict, optional): Dictionary to define a mapping between the defaukt 18 class nomenclature
             and another class grouping, optional.
             mono_date (int or str, optional): If provided only one date of the available time series is loaded.
-            If aargument is an int it defines the position of the date that is loaded. If it is a string, it shloud be
+            If argument is an int it defines the position of the date that is loaded. If it is a string, it should be
             in format 'YYYY-MM-DD' and the closest available date will be selected.
             sats (list): defines the satellites to use (only Sentinel-2 is available in v1.0)
         """
@@ -51,6 +57,7 @@ class PASTIS_Dataset(tdata.Dataset):
         self.norm = norm
         self.reference_date = datetime(*map(int, reference_date.split('-')))
         self.cache = cache
+        self.mem16 = mem16
         self.mono_date = datetime(*map(int, mono_date.split('-'))) if isinstance(mono_date, str) else mono_date
         self.memory = {}
         self.memory_dates = {}
@@ -153,10 +160,15 @@ class PASTIS_Dataset(tdata.Dataset):
                                     sem_obj[:, :, None], sem_pix[:, :, None]], axis=-1)).float()
 
             if self.cache:
-                self.memory[item] = [data, target]
+                if self.mem16:
+                    self.memory[item] = [{k: v.half() for k, v in data.items()}, target]
+                else:
+                    self.memory[item] = [data, target]
 
         else:
             data, target = self.memory[item]
+            if self.mem16:
+                data = {k: v.float() for k, v in data.items()}
 
         # Retrieve date sequences
         if not self.cache or id_patch not in self.memory_dates.keys():
