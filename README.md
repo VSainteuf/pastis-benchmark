@@ -1,5 +1,6 @@
 # PAnoptic Segmentation of satellite image TIme Series - PASTIS Benchmark
 
+![](images/predictions.png)
 
 ## Dataset presentation
 PASTIS is a benchmark dataset for panoptic and semantic segmentation of agricultural parcels from 
