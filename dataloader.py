@@ -188,7 +188,10 @@ class PASTIS_Dataset(tdata.Dataset):
                 data = data[mono_date]
                 dates = dates[mono_date]
 
-        return (data, dates), target
+        if self.mem16:
+            return ({k: v.float() for k, v in data.items()}, dates), target
+        else:
+            return (data, dates), target
 
 
 def prepare_dates(date_dict, reference_date):
