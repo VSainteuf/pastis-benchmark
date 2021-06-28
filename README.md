@@ -9,26 +9,28 @@ of satellite observations are assembled into a four-dimensional spatio-temporal 
 The dataset contains both semantic and instance annotations, assigning to each pixel a semantic label and an instance id.
 There is an official 5 fold split provided in the dataset's metadata.
 ## Usage 
-The dataset can be downloaded from [zenodo]().
-
+The dataset can be downloaded from [zenodo](https://zenodo.org/record/5012942).
 This repository also contains a PyTorch dataset class in `dataloader.py` that can be readily used to load data for training.
 
 ## Leaderboard
+Please open an issue to submit new entries.
 
 ### Semantic Segmentation
-| Model name         | #Params| OA  |  mIoU |
-| ------------------ |---- |---- | ---|
-| U-TAE   |   1.1M|  83.2%    | 63.1%|
-| Unet-3d   | 1.6M|    81.3%    |  58.4%|
-| Unet-ConvLSTM |1.5M  |     82.1%    |  57.8%|
-| FPN-ConvLSTM  | 1.3M|    81.6%   |  57.1%|
+| Model name         | #Params| OA  |  mIoU | Published |
+| ------------------ |---- |---- | ---| --- |
+| U-TAE   |   1.1M|  83.2%    | 63.1%|  :heavy_check_mark:|
+| Unet-3d*   | 1.6M|    81.3%    |  58.4%| :heavy_check_mark:|
+| Unet-ConvLSTM* |1.5M  |     82.1%    |  57.8%| :heavy_check_mark:|
+| FPN-ConvLSTM*  | 1.3M|    81.6%   |  57.1%|:heavy_check_mark: |
 
+Models that we re-implemented are denoted with a star (*).
 
 
 ### Panoptic Segmentation
 | Model name         | SQ  | RQ | PQ|
 | ------------------ |--- | --- |--- |
-| U-TAE + PaPs       | | |   |
+| U-TAE + PaPs       | 82.0|51.0 |42.2   |
+
 
 
 ## Documentation
