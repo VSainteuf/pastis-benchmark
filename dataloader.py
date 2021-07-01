@@ -28,40 +28,52 @@ class PASTIS_Dataset(tdata.Dataset):
         sats=["S2"],
     ):
         """
-        Pytorch Dataset class to load samples from the PASTIS dataset, for semantic and panoptic segmentation.
+        Pytorch Dataset class to load samples from the PASTIS dataset, for semantic and
+        panoptic segmentation.
+
         The Dataset yields ((data, dates), target) tuples, where:
             - data contains the image time series
-            - dates contains the date sequence of the observations expressed in number of days since a reference date
+            - dates contains the date sequence of the observations expressed in number
+              of days since a reference date
             - target is the semantic or instance target
+
         Args:
             folder (str): Path to the dataset
-            norm (bool): If true, images are standardised using pre-computed channel-wise
-            means and standard deviations.
-            reference_date (str, Format : 'YYYY-MM-DD'): Defines the reference date based on which all observation dates
-            are expressed. Along with the image time series and the target tensor, this dataloader yields the sequence
-            of observation dates (in terms of number of days since the reference date). This sequence of dates is used
-            for instance for the positional encoding in attention based approaches.
-            target (str): 'semantic' or 'instance'. Defines which type of target is returned by the dataloader.
-            If 'semantic' the target tensor is a tensor containing the class of each pixel.
-            If 'instance' the target tensor is the concatenation of several signals, necessary to train the
-            Parcel-as-Points module:
-                - the centerness heatmap,
-                - the instance ids,
-                - the voronoi partitioning of the patch with regards to the parcels' centers,
-                - the (height, width) size of each parcel
-                - the semantic label of each parcel
-                - the semantic label of each pixel
+            norm (bool): If true, images are standardised using pre-computed
+                channel-wise means and standard deviations.
+            reference_date (str, Format : 'YYYY-MM-DD'): Defines the reference date
+                based on which all observation dates are expressed. Along with the image
+                time series and the target tensor, this dataloader yields the sequence
+                of observation dates (in terms of number of days since the reference
+                date). This sequence of dates is used for instance for the positional
+                encoding in attention based approaches.
+            target (str): 'semantic' or 'instance'. Defines which type of target is
+                returned by the dataloader.
+                * If 'semantic' the target tensor is a tensor containing the class of
+                  each pixel.
+                * If 'instance' the target tensor is the concatenation of several
+                  signals, necessary to train the Parcel-as-Points module:
+                    - the centerness heatmap,
+                    - the instance ids,
+                    - the voronoi partitioning of the patch with regards to the parcels'
+                      centers,
+                    - the (height, width) size of each parcel
+                    - the semantic label of each parcel
+                    - the semantic label of each pixel
             cache (bool): If True, the loaded samples stay in RAM, default False.
-            mem16 (bool): Additional argument for cache. If True, the image time series tensors are stored
-            in half precision in RAM for efficiency. They are cast back to float32 when returned by __getitem__.
-            folds (list, optional): List of ints specifying which of the 5 official folds to load.
-            By default (when None is specified) all folds are loaded.
-            class_mapping (dict, optional): Dictionary to define a mapping between the defaukt 18 class nomenclature
-            and another class grouping, optional.
-            mono_date (int or str, optional): If provided only one date of the available time series is loaded.
-            If argument is an int it defines the position of the date that is loaded. If it is a string, it should be
-            in format 'YYYY-MM-DD' and the closest available date will be selected.
-            sats (list): defines the satellites to use (only Sentinel-2 is available in v1.0)
+            mem16 (bool): Additional argument for cache. If True, the image time
+                series tensors are stored in half precision in RAM for efficiency.
+                They are cast back to float32 when returned by __getitem__.
+            folds (list, optional): List of ints specifying which of the 5 official
+                folds to load. By default (when None is specified) all folds are loaded.
+            class_mapping (dict, optional): Dictionary to define a mapping between the
+                default 18 class nomenclature and another class grouping, optional.
+            mono_date (int or str, optional): If provided only one date of the
+                available time series is loaded. If argument is an int it defines the
+                position of the date that is loaded. If it is a string, it should be
+                in format 'YYYY-MM-DD' and the closest available date will be selected.
+            sats (list): defines the satellites to use (only Sentinel-2 is available
+                in v1.0)
         """
         super(PASTIS_Dataset, self).__init__()
         self.folder = folder
