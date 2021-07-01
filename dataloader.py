@@ -14,8 +14,19 @@ import re
 
 
 class PASTIS_Dataset(tdata.Dataset):
-    def __init__(self, folder, norm=True, target='semantic', cache=False, mem16=False, folds=None,
-                 reference_date='2018-09-01', class_mapping=None, mono_date=None, sats=['S2']):
+    def __init__(
+        self,
+        folder,
+        norm=True,
+        target="semantic",
+        cache=False,
+        mem16=False,
+        folds=None,
+        reference_date="2018-09-01",
+        class_mapping=None,
+        mono_date=None,
+        sats=["S2"],
+    ):
         """
         Pytorch Dataset class to load samples from the PASTIS dataset, for semantic and panoptic segmentation.
         The Dataset yields ((data, dates), target) tuples, where:
@@ -55,41 +66,59 @@ class PASTIS_Dataset(tdata.Dataset):
         super(PASTIS_Dataset, self).__init__()
         self.folder = folder
         self.norm = norm
-        self.reference_date = datetime(*map(int, reference_date.split('-')))
+        self.reference_date = datetime(*map(int, reference_date.split("-")))
         self.cache = cache
         self.mem16 = mem16
-        self.mono_date = datetime(*map(int, mono_date.split('-'))) if isinstance(mono_date, str) else mono_date
+        self.mono_date = (
+            datetime(*map(int, mono_date.split("-")))
+            if isinstance(mono_date, str)
+            else mono_date
+        )
         self.memory = {}
         self.memory_dates = {}
-        self.class_mapping = np.vectorize(lambda x: class_mapping[x]) if class_mapping is not None else class_mapping
+        self.class_mapping = (
+            np.vectorize(lambda x: class_mapping[x])
+            if class_mapping is not None
+            else class_mapping
+        )
         self.target = target
         self.sats = sats
 
         # Get metadata
-        print('Reading patch metadata . . .')
-        self.meta_patch = gpd.read_file(os.path.join(folder, 'metadata.geojson'))
-        self.meta_patch.index = self.meta_patch['ID_PATCH'].astype(int)
+        print("Reading patch metadata . . .")
+        self.meta_patch = gpd.read_file(os.path.join(folder, "metadata.geojson"))
+        self.meta_patch.index = self.meta_patch["ID_PATCH"].astype(int)
         self.meta_patch.sort_index(inplace=True)
 
         self.date_tables = {s: None for s in sats}
         self.date_range = np.array(range(-200, 600))
         for s in sats:
-            dates = self.meta_patch['dates-{}'.format(s)]
-            date_table = pd.DataFrame(index=self.meta_patch.index, columns=self.date_range, dtype=int)
+            dates = self.meta_patch["dates-{}".format(s)]
+            date_table = pd.DataFrame(
+                index=self.meta_patch.index, columns=self.date_range, dtype=int
+            )
             for pid, date_seq in dates.iteritems():
-                d = pd.DataFrame().from_dict(date_seq, orient='index')
+                d = pd.DataFrame().from_dict(date_seq, orient="index")
                 d = d[0].apply(
-                    lambda x: (datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:])) - self.reference_date).days)
+                    lambda x: (
+                        datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
+                        - self.reference_date
+                    ).days
+                )
                 date_table.loc[pid, d.values] = 1
             date_table = date_table.fillna(0)
-            self.date_tables[s] = {index: np.array(list(d.values())) for index, d in
-                                   date_table.to_dict(orient='index').items()}
+            self.date_tables[s] = {
+                index: np.array(list(d.values()))
+                for index, d in date_table.to_dict(orient="index").items()
+            }
 
-        print('Done.')
+        print("Done.")
 
         # Select Fold samples
         if folds is not None:
-            self.meta_patch = pd.concat([self.meta_patch[self.meta_patch['Fold'] == f] for f in folds])
+            self.meta_patch = pd.concat(
+                [self.meta_patch[self.meta_patch["Fold"] == f] for f in folds]
+            )
 
         self.len = self.meta_patch.shape[0]
         self.id_patches = self.meta_patch.index
@@ -98,16 +127,21 @@ class PASTIS_Dataset(tdata.Dataset):
         if norm:
             self.norm = {}
             for s in self.sats:
-                with open(os.path.join(folder, 'NORM_{}_patch.json'.format(s)), 'r') as file:
+                with open(
+                    os.path.join(folder, "NORM_{}_patch.json".format(s)), "r"
+                ) as file:
                     normvals = json.loads(file.read())
                 selected_folds = folds if folds is not None else range(1, 6)
-                means = [normvals['Fold_{}'.format(f)]['mean'] for f in selected_folds]
-                stds = [normvals['Fold_{}'.format(f)]['std'] for f in selected_folds]
+                means = [normvals["Fold_{}".format(f)]["mean"] for f in selected_folds]
+                stds = [normvals["Fold_{}".format(f)]["std"] for f in selected_folds]
                 self.norm[s] = np.stack(means).mean(axis=0), np.stack(stds).mean(axis=0)
-                self.norm[s] = torch.from_numpy(self.norm[s][0]).float(), torch.from_numpy(self.norm[s][1]).float()
+                self.norm[s] = (
+                    torch.from_numpy(self.norm[s][0]).float(),
+                    torch.from_numpy(self.norm[s][1]).float(),
+                )
         else:
             self.norm = None
-        print('Dataset ready.')
+        print("Dataset ready.")
 
     def __len__(self):
         return self.len
@@ -120,27 +154,62 @@ class PASTIS_Dataset(tdata.Dataset):
 
         # Retrieve and prepare satellite data
         if not self.cache or item not in self.memory.keys():
-            data = {satellite: np.load(
-                os.path.join(self.folder, 'DATA_{}'.format(satellite),
-                             '{}_{}.npy'.format(satellite, id_patch))).astype(np.float32)
-                    for satellite in self.sats}  # T x C x H x W arrays
+            data = {
+                satellite: np.load(
+                    os.path.join(
+                        self.folder,
+                        "DATA_{}".format(satellite),
+                        "{}_{}.npy".format(satellite, id_patch),
+                    )
+                ).astype(np.float32)
+                for satellite in self.sats
+            }  # T x C x H x W arrays
             data = {s: torch.from_numpy(a) for s, a in data.items()}
             if self.norm is not None:
-                data = {s: (d - self.norm[s][0][None, :, None, None]) / self.norm[s][1][None, :, None, None] for s, d in
-                        data.items()}
+                data = {
+                    s: (d - self.norm[s][0][None, :, None, None])
+                    / self.norm[s][1][None, :, None, None]
+                    for s, d in data.items()
+                }
 
-            if self.target == 'semantic':
-                target = np.load(os.path.join(self.folder, 'ANNOTATIONS', 'TARGET_{}.npy'.format(id_patch)))
+            if self.target == "semantic":
+                target = np.load(
+                    os.path.join(
+                        self.folder, "ANNOTATIONS", "TARGET_{}.npy".format(id_patch)
+                    )
+                )
                 target = torch.from_numpy(target[0].astype(int))
                 if self.class_mapping is not None:
                     target = self.class_mapping(target)
-            elif self.target == 'instance':
-                heat = np.load(os.path.join(self.folder, 'INSTANCE_ANNOTATIONS', 'HEATMAP_{}.npy'.format(id_patch)))
+            elif self.target == "instance":
+                heat = np.load(
+                    os.path.join(
+                        self.folder,
+                        "INSTANCE_ANNOTATIONS",
+                        "HEATMAP_{}.npy".format(id_patch),
+                    )
+                )
 
-                inst = np.load(os.path.join(self.folder, 'INSTANCE_ANNOTATIONS', 'INSTANCES_{}.npy'.format(id_patch)))
-                zone = np.load(os.path.join(self.folder, 'INSTANCE_ANNOTATIONS', 'ZONES_{}.npy'.format(id_patch)))
+                inst = np.load(
+                    os.path.join(
+                        self.folder,
+                        "INSTANCE_ANNOTATIONS",
+                        "INSTANCES_{}.npy".format(id_patch),
+                    )
+                )
+                zone = np.load(
+                    os.path.join(
+                        self.folder,
+                        "INSTANCE_ANNOTATIONS",
+                        "ZONES_{}.npy".format(id_patch),
+                    )
+                )
 
-                sem_pix = np.load(os.path.join(self.folder, 'ANNOTATIONS', 'TARGET_{}.npy'.format(id_patch)))
+                sem_pix = np.load(
+                    os.path.join(
+                        self.folder, "ANNOTATIONS", "TARGET_{}.npy".format(id_patch)
+                    )
+                )
                 if self.class_mapping is not None:
                     sem_pix = self.class_mapping(sem_pix[0])
                 else:
@@ -156,8 +225,18 @@ class PASTIS_Dataset(tdata.Dataset):
                         sem_obj[zone == x] = sem_pix[inst == x][0]
 
                 target = torch.from_numpy(
-                    np.concatenate([heat[:, :, None], inst[:, :, None], zone[:, :, None], size,
-                                    sem_obj[:, :, None], sem_pix[:, :, None]], axis=-1)).float()
+                    np.concatenate(
+                        [
+                            heat[:, :, None],
+                            inst[:, :, None],
+                            zone[:, :, None],
+                            size,
+                            sem_obj[:, :, None],
+                            sem_pix[:, :, None],
+                        ],
+                        axis=-1,
+                    )
+                ).float()
 
             if self.cache:
                 if self.mem16:
@@ -172,7 +251,9 @@ class PASTIS_Dataset(tdata.Dataset):
 
         # Retrieve date sequences
         if not self.cache or id_patch not in self.memory_dates.keys():
-            dates = {s: torch.from_numpy(self.get_dates(id_patch, s)) for s in self.sats}
+            dates = {
+                s: torch.from_numpy(self.get_dates(id_patch, s)) for s in self.sats
+            }
             if self.cache:
                 self.memory_dates[id_patch] = dates
         else:
@@ -196,12 +277,17 @@ class PASTIS_Dataset(tdata.Dataset):
 
 def prepare_dates(date_dict, reference_date):
     """Date formating."""
-    d = pd.DataFrame().from_dict(date_dict, orient='index')
-    d = d[0].apply(lambda x: (datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:])) - reference_date).days)
+    d = pd.DataFrame().from_dict(date_dict, orient="index")
+    d = d[0].apply(
+        lambda x: (
+            datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
+            - reference_date
+        ).days
+    )
     return d.values
 
 
-np_str_obj_array_pattern = re.compile(r'[SaUO]')
+np_str_obj_array_pattern = re.compile(r"[SaUO]")
 
 
 def pad_tensor(x, l, pad_value=0):
@@ -232,26 +318,29 @@ def pad_collate(batch, pad_value=0):
             storage = elem.storage()._new_shared(numel)
             out = elem.new(storage)
         return torch.stack(batch, 0, out=out)
-    elif elem_type.__module__ == 'numpy' and elem_type.__name__ != 'str_' \
-            and elem_type.__name__ != 'string_':
-        if elem_type.__name__ == 'ndarray' or elem_type.__name__ == 'memmap':
+    elif (
+        elem_type.__module__ == "numpy"
+        and elem_type.__name__ != "str_"
+        and elem_type.__name__ != "string_"
+    ):
+        if elem_type.__name__ == "ndarray" or elem_type.__name__ == "memmap":
             # array of string classes and object
             if np_str_obj_array_pattern.search(elem.dtype.str) is not None:
-                raise TypeError('Format not managed : {}'.format(elem.dtype))
+                raise TypeError("Format not managed : {}".format(elem.dtype))
 
             return pad_collate([torch.as_tensor(b) for b in batch])
         elif elem.shape == ():  # scalars
             return torch.as_tensor(batch)
     elif isinstance(elem, collections.abc.Mapping):
         return {key: pad_collate([d[key] for d in batch]) for key in elem}
-    elif isinstance(elem, tuple) and hasattr(elem, '_fields'):  # namedtuple
+    elif isinstance(elem, tuple) and hasattr(elem, "_fields"):  # namedtuple
         return elem_type(*(pad_collate(samples) for samples in zip(*batch)))
     elif isinstance(elem, collections.abc.Sequence):
         # check to make sure that the elements in batch have consistent size
         it = iter(batch)
         elem_size = len(next(it))
         if not all(len(elem) == elem_size for elem in it):
-            raise RuntimeError('each element in list of batch should be of equal size')
+            raise RuntimeError("each element in list of batch should be of equal size")
         transposed = zip(*batch)
         return [pad_collate(samples) for samples in transposed]
-    raise TypeError('Format not managed : {}'.format(elem_type))
+    raise TypeError("Format not managed : {}".format(elem_type))
