@@ -165,6 +165,7 @@ class PASTIS_Dataset(tdata.Dataset):
                 for satellite in self.sats
             }  # T x C x H x W arrays
             data = {s: torch.from_numpy(a) for s, a in data.items()}
+
             if self.norm is not None:
                 data = {
                     s: (d - self.norm[s][0][None, :, None, None])
@@ -179,8 +180,10 @@ class PASTIS_Dataset(tdata.Dataset):
                     )
                 )
                 target = torch.from_numpy(target[0].astype(int))
+
                 if self.class_mapping is not None:
                     target = self.class_mapping(target)
+
             elif self.target == "instance":
                 heat = np.load(
                     os.path.join(
@@ -210,6 +213,7 @@ class PASTIS_Dataset(tdata.Dataset):
                         self.folder, "ANNOTATIONS", "TARGET_{}.npy".format(id_patch)
                     )
                 )
+
                 if self.class_mapping is not None:
                     sem_pix = self.class_mapping(sem_pix[0])
                 else:
@@ -297,9 +301,11 @@ def pad_tensor(x, l, pad_value=0):
 
 
 def pad_collate(batch, pad_value=0):
-    # Utility function to be used as collate_fn for the PyTorch dataloader to handle sequences of varying length.
+    # Utility function to be used as collate_fn for the PyTorch dataloader
+    # to handle sequences of varying length.
     # Sequences are padded with zeros by default.
-    # modified default_collate from the official pytorch repo
+    #
+    # Modified default_collate from the official pytorch repo
     # https://github.com/pytorch/pytorch/blob/master/torch/utils/data/_utils/collate.py
     elem = batch[0]
     elem_type = type(elem)
@@ -331,10 +337,13 @@ def pad_collate(batch, pad_value=0):
             return pad_collate([torch.as_tensor(b) for b in batch])
         elif elem.shape == ():  # scalars
             return torch.as_tensor(batch)
+
     elif isinstance(elem, collections.abc.Mapping):
         return {key: pad_collate([d[key] for d in batch]) for key in elem}
+
     elif isinstance(elem, tuple) and hasattr(elem, "_fields"):  # namedtuple
         return elem_type(*(pad_collate(samples) for samples in zip(*batch)))
+
     elif isinstance(elem, collections.abc.Sequence):
         # check to make sure that the elements in batch have consistent size
         it = iter(batch)
@@ -343,4 +352,5 @@ def pad_collate(batch, pad_value=0):
             raise RuntimeError("each element in list of batch should be of equal size")
         transposed = zip(*batch)
         return [pad_collate(samples) for samples in transposed]
+
     raise TypeError("Format not managed : {}".format(elem_type))
