@@ -238,17 +238,17 @@ class PASTIS_Dataset(tdata.Dataset):
                         w = (instance_ids == instance_id).any(axis=-2).sum()
                         size[pixel_to_object_mapping == instance_id] = (h, w)
                         object_semantic_annotation[pixel_to_object_mapping == instance_id] = \
-                        pixel_semantic_annotation[instance_ids == instance_id][0]
+                            pixel_semantic_annotation[instance_ids == instance_id][0]
 
                 target = torch.from_numpy(
                     np.concatenate(
                         [
-                            heatmap[:, :, None],
-                            instance_ids[:, :, None],
-                            pixel_to_object_mapping[:, :, None],
-                            size,
-                            object_semantic_annotation[:, :, None],
-                            pixel_semantic_annotation[:, :, None],
+                            heatmap[:, :, None],  # 0
+                            instance_ids[:, :, None],  # 1
+                            pixel_to_object_mapping[:, :, None],  # 2
+                            size,  # 3-4
+                            object_semantic_annotation[:, :, None],  # 5
+                            pixel_semantic_annotation[:, :, None],  # 6
                         ],
                         axis=-1,
                     )
