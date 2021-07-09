@@ -36,7 +36,7 @@ Models that we re-implemented are denoted with a star (*).
 ## Documentation
 The agricultural parcels are grouped into 18 different crop classes as shown in the 
 table below. 
-<img src="images/Nomenclature.jp2" alt="drawing" width="300"/>
+<img src="images/Nomenclature.png" alt="drawing" width="300"/>
 
 Additional information about the dataset can be found in the `doc.pdf` document.
 
