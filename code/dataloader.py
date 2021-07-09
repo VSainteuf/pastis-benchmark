@@ -1,3 +1,8 @@
+"""
+Author: Vivien Sainte Fare Garnot (github.com/VSainteuf)
+License MIT
+"""
+
 import collections.abc
 import json
 import os

@@ -9,8 +9,19 @@ of satellite observations are assembled into a four-dimensional spatio-temporal 
 The dataset contains both semantic and instance annotations, assigning to each pixel a semantic label and an instance id.
 There is an official 5 fold split provided in the dataset's metadata.
 ## Usage 
+- **DOWNLOAD** 
+
 The dataset can be downloaded from [zenodo](https://zenodo.org/record/5012942).
-This repository also contains a PyTorch dataset class in `dataloader.py` that can be readily used to load data for training.
+- **DATALOADER** 
+
+This repository also contains a PyTorch dataset class in `code/dataloader.py` 
+that can be readily used to load data for training.
+- **METRICS** 
+
+A PyTorch implementation is also given in `code/panoptic_metrics.py` to compute
+the panoptic metrics. In order to use these metrics, the model's output should contain an instance prediction
+and a semantic prediction. The first one allocates an instance id to each pixel of the image, 
+and the latter a semantic label.
 
 ## Leaderboard
 Please open an issue to submit new entries.
@@ -38,7 +49,7 @@ The agricultural parcels are grouped into 18 different crop classes as shown in 
 table below. 
 <img src="images/Nomenclature.png" alt="drawing" width="300"/>
 
-Additional information about the dataset can be found in the `doc.pdf` document.
+Additional information about the dataset can be found in the `documentation/Doc.pdf` document.
 
 ## References
 If you use PASTIS please cite the related paper:

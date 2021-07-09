@@ -1,3 +1,8 @@
+"""
+Author: Vivien Sainte Fare Garnot (github.com/VSainteuf)
+License MIT
+"""
+
 import torch
 
 
@@ -13,6 +18,9 @@ class PanopticMeter:
         The behavior of this meter mimics that of torchnet meters, each predicted batch
         is added via the add method and the global metrics are retrieved with the value
         method.
+        In order to use these metrics, a model's output should be composed of an instance prediction
+        and a semantic prediction. The first one allocates an instance id to each pixel of the image,
+        and the latter a semantic label.
         Args:
             num_classes (int): Number of semantic classes (including background and void class).
             void_label (int): Label for the void class (default 19).
