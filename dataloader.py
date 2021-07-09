@@ -14,17 +14,17 @@ from torch.nn import functional as F
 
 class PASTIS_Dataset(tdata.Dataset):
     def __init__(
-        self,
-        folder,
-        norm=True,
-        target="semantic",
-        cache=False,
-        mem16=False,
-        folds=None,
-        reference_date="2018-09-01",
-        class_mapping=None,
-        mono_date=None,
-        sats=["S2"],
+            self,
+            folder,
+            norm=True,
+            target="semantic",
+            cache=False,
+            mem16=False,
+            folds=None,
+            reference_date="2018-09-01",
+            class_mapping=None,
+            mono_date=None,
+            sats=["S2"],
     ):
         """
         Pytorch Dataset class to load samples from the PASTIS dataset, for semantic and
@@ -112,8 +112,8 @@ class PASTIS_Dataset(tdata.Dataset):
                 d = pd.DataFrame().from_dict(date_seq, orient="index")
                 d = d[0].apply(
                     lambda x: (
-                        datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
-                        - self.reference_date
+                            datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
+                            - self.reference_date
                     ).days
                 )
                 date_table.loc[pid, d.values] = 1
@@ -139,7 +139,7 @@ class PASTIS_Dataset(tdata.Dataset):
             self.norm = {}
             for s in self.sats:
                 with open(
-                    os.path.join(folder, "NORM_{}_patch.json".format(s)), "r"
+                        os.path.join(folder, "NORM_{}_patch.json".format(s)), "r"
                 ) as file:
                     normvals = json.loads(file.read())
                 selected_folds = folds if folds is not None else range(1, 6)
@@ -180,7 +180,7 @@ class PASTIS_Dataset(tdata.Dataset):
             if self.norm is not None:
                 data = {
                     s: (d - self.norm[s][0][None, :, None, None])
-                    / self.norm[s][1][None, :, None, None]
+                       / self.norm[s][1][None, :, None, None]
                     for s, d in data.items()
                 }
 
@@ -196,7 +196,7 @@ class PASTIS_Dataset(tdata.Dataset):
                     target = self.class_mapping(target)
 
             elif self.target == "instance":
-                heat = np.load(
+                heatmap = np.load(
                     os.path.join(
                         self.folder,
                         "INSTANCE_ANNOTATIONS",
@@ -204,14 +204,14 @@ class PASTIS_Dataset(tdata.Dataset):
                     )
                 )
 
-                inst = np.load(
+                instance_ids = np.load(
                     os.path.join(
                         self.folder,
                         "INSTANCE_ANNOTATIONS",
                         "INSTANCES_{}.npy".format(id_patch),
                     )
                 )
-                zone = np.load(
+                pixel_to_object_mapping = np.load(
                     os.path.join(
                         self.folder,
                         "INSTANCE_ANNOTATIONS",
@@ -219,35 +219,36 @@ class PASTIS_Dataset(tdata.Dataset):
                     )
                 )
 
-                sem_pix = np.load(
+                pixel_semantic_annotation = np.load(
                     os.path.join(
                         self.folder, "ANNOTATIONS", "TARGET_{}.npy".format(id_patch)
                     )
                 )
 
                 if self.class_mapping is not None:
-                    sem_pix = self.class_mapping(sem_pix[0])
+                    pixel_semantic_annotation = self.class_mapping(pixel_semantic_annotation[0])
                 else:
-                    sem_pix = sem_pix[0]
+                    pixel_semantic_annotation = pixel_semantic_annotation[0]
 
-                size = np.zeros((*inst.shape, 2))
-                sem_obj = np.zeros(inst.shape)
-                for x in np.unique(inst):
-                    if x != 0:
-                        h = (inst == x).any(axis=-1).sum()
-                        w = (inst == x).any(axis=-2).sum()
-                        size[zone == x] = (h, w)
-                        sem_obj[zone == x] = sem_pix[inst == x][0]
+                size = np.zeros((*instance_ids.shape, 2))
+                object_semantic_annotation = np.zeros(instance_ids.shape)
+                for instance_id in np.unique(instance_ids):
+                    if instance_id != 0:
+                        h = (instance_ids == instance_id).any(axis=-1).sum()
+                        w = (instance_ids == instance_id).any(axis=-2).sum()
+                        size[pixel_to_object_mapping == instance_id] = (h, w)
+                        object_semantic_annotation[pixel_to_object_mapping == instance_id] = \
+                        pixel_semantic_annotation[instance_ids == instance_id][0]
 
                 target = torch.from_numpy(
                     np.concatenate(
                         [
-                            heat[:, :, None],
-                            inst[:, :, None],
-                            zone[:, :, None],
+                            heatmap[:, :, None],
+                            instance_ids[:, :, None],
+                            pixel_to_object_mapping[:, :, None],
                             size,
-                            sem_obj[:, :, None],
-                            sem_pix[:, :, None],
+                            object_semantic_annotation[:, :, None],
+                            pixel_semantic_annotation[:, :, None],
                         ],
                         axis=-1,
                     )
@@ -295,8 +296,8 @@ def prepare_dates(date_dict, reference_date):
     d = pd.DataFrame().from_dict(date_dict, orient="index")
     d = d[0].apply(
         lambda x: (
-            datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
-            - reference_date
+                datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
+                - reference_date
         ).days
     )
     return d.values
@@ -336,9 +337,9 @@ def pad_collate(batch, pad_value=0):
             out = elem.new(storage)
         return torch.stack(batch, 0, out=out)
     elif (
-        elem_type.__module__ == "numpy"
-        and elem_type.__name__ != "str_"
-        and elem_type.__name__ != "string_"
+            elem_type.__module__ == "numpy"
+            and elem_type.__name__ != "str_"
+            and elem_type.__name__ != "string_"
     ):
         if elem_type.__name__ == "ndarray" or elem_type.__name__ == "memmap":
             # array of string classes and object
