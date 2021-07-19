@@ -29,10 +29,10 @@ Please open an issue to submit new entries.
 ### Semantic Segmentation
 | Model name         | #Params| OA  |  mIoU | Published |
 | ------------------ |---- |---- | ---| --- |
-| U-TAE   |   1.1M|  83.2%    | 63.1%|  :heavy_check_mark:|
-| Unet-3d*   | 1.6M|    81.3%    |  58.4%| :heavy_check_mark:|
-| Unet-ConvLSTM* |1.5M  |     82.1%    |  57.8%| :heavy_check_mark:|
-| FPN-ConvLSTM*  | 1.3M|    81.6%   |  57.1%|:heavy_check_mark: |
+| U-TAE   |   1.1M|  83.2%    | 63.1%|  :heavy_check_mark: [link](https://arxiv.org/pdf/2107.07933.pdf)|
+| Unet-3d*   | 1.6M|    81.3%    |  58.4%| :heavy_check_mark: [link](http://openaccess.thecvf.com/content_CVPRW_2019/html/cv4gc/Rustowicz_Semantic_Segmentation_of_Crop_Type_in_Africa_A_Novel_Dataset_CVPRW_2019_paper.html)|
+| Unet-ConvLSTM* |1.5M  |     82.1%    |  57.8%| :heavy_check_mark: [link](http://openaccess.thecvf.com/content_CVPRW_2019/html/cv4gc/Rustowicz_Semantic_Segmentation_of_Crop_Type_in_Africa_A_Novel_Dataset_CVPRW_2019_paper.html)|
+| FPN-ConvLSTM*  | 1.3M|    81.6%   |  57.1%|:heavy_check_mark: [link](https://www.sciencedirect.com/science/article/pii/S0924271620303142?casa_token=uhkmVE-Lk94AAAAA:r6USZEEFMFE2qc2uYZSrqTzy1_DSI9hflG2cVeay-2Bd-PHFIg3CPwgisf7jatDDfRnR4ROzN9k)|
 
 Models that we re-implemented are denoted with a star (*).
 
@@ -40,7 +40,7 @@ Models that we re-implemented are denoted with a star (*).
 ### Panoptic Segmentation
 | Model name         | SQ  | RQ | PQ|
 | ------------------ |--- | --- |--- |
-| U-TAE + PaPs       | 82.0|51.0 |42.2   |
+| U-TAE + PaPs       | 81.3|49.2 |40.4|
 
 
 
