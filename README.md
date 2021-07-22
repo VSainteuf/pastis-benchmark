@@ -57,10 +57,10 @@ The agricultural parcels are grouped into 18 different crop classes as shown in 
 table below. The backgroud class corresponds to non-agricultural land, and the void label for parcels that are mostly outside their patch.
 <img src="images/Nomenclature.png" alt="drawing" width="300"/>
 
-Additional information about the dataset can be found in the `documentation/Doc.pdf` document.
+Additional information about the dataset can be found in the `documentation/pastis-documentation.pdf` document.
 
 ## References
-If you use PASTIS please cite the related paper:
+If you use PASTIS please cite the [related paper](https://arxiv.org/abs/2107.07933):
 ```
 @article{garnot2021panoptic,
   title={Panoptic Segmentation of Satellite Image Time Series
