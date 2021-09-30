@@ -66,7 +66,7 @@ If you use PASTIS please cite the [related paper](https://arxiv.org/abs/2107.079
   title={Panoptic Segmentation of Satellite Image Time Series
 with Convolutional Temporal Attention Networks},
   author={Sainte Fare Garnot, Vivien  and Landrieu, Loic },
-  journal={arxiv},
+  journal={ICCV},
   year={2021}
 }
 ```
