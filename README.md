@@ -1,4 +1,4 @@
-# :ear_of_rice: PASTIS :ear_of_rice: Panoptic Agricultural Satellite TIme Series
+# :ear_of_rice: PASTIS :ear_of_rice: Panoptic Agricultural Satellite TIme Series (optical and radar)
 
 ![](images/predictions.png)
 
@@ -19,14 +19,41 @@ We propose an official 5 fold split provided in the dataset's metadata, and eval
 :arrow_forward:  **10 spectral bands**        | :arrow_forward: **covers ~4,000 km²**                       | :arrow_forward: **over 2B pixels**
 
 
+- **Radar extension (PASTIS-R)**
+
+We also propose an extended version of PASTIS which contains all radar observations of Sentinel-1
+for all 2433 patches in addition to the Sentinel-2 images. For each patch, approximately 70 observations of Sentinel-1 in ascending orbit, 
+and 70 observations in descending orbit are added to the dataset. The PASTIS-R extension can thus be used to evaluate optical-radar fusion
+methods for parcel-based classification, semantic segmentation, and panoptic segmentation.  
+For more details on PASTIS-R, refer to *link coming soon*. 
+
+
+
 ## Usage 
 - **Download** 
 
-The dataset can be downloaded from [zenodo](https://zenodo.org/record/5012942).
-- **Dataloader** 
+The dataset can be downloaded from zenodo in different formats:
+ 1. [PASTIS](https://zenodo.org/record/5012942) (29 GB zipped) : The original PASTIS dataset for semantic and panoptic segmentation
+    on Sentinel-2 time series (format used for the ICCV 2021 paper). 
+ 2. [PASTIS-R]() (54 GB zipped) : The extended version with Sentinel-1 observations.
+ 3. [PASTIS-R (pixel-set format)](https://zenodo.org/record/5745151) (27 GB zipped) : The PASTIS-R dataset prepared in pixel-set format 
+    for parcel-based classification only. See this [repo](https://github.com/VSainteuf/pytorch-psetae) and 
+    [paper](https://openaccess.thecvf.com/content_CVPR_2020/html/Garnot_Satellite_Image_Time_Series_Classification_With_Pixel-Set_Encoders_and_Temporal_CVPR_2020_paper.html)
+    for more details on this format. 
+
+
+
+- **Data loading** 
 
 This repository also contains a PyTorch dataset class in `code/dataloader.py` 
-that can be readily used to load data for training.
+that can be readily used to load data for training models on PASTIS and PASTIS-R.
+For the pixel-set dataset, use the dataloader in `code/dataloader_pixelset.py`. 
+The time series contained in PASTIS have variable lengths. The `code/collate.py` 
+contains a `pad_collate` function that you can use in 
+ the pytorch dataloader to temporally pad shorter sequences. 
+ The `demo.ipynb` notebook shows how to use these classes and methods to load data from PASTIS.
+
+
 - **Metrics** 
 
 A PyTorch implementation is also given in `code/panoptic_metrics.py` to compute

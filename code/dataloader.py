@@ -3,10 +3,8 @@ Author: Vivien Sainte Fare Garnot (github.com/VSainteuf)
 License MIT
 """
 
-import collections.abc
 import json
 import os
-import re
 from datetime import datetime
 
 import geopandas as gpd
@@ -14,22 +12,21 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.utils.data as tdata
-from torch.nn import functional as F
 
 
 class PASTIS_Dataset(tdata.Dataset):
     def __init__(
-            self,
-            folder,
-            norm=True,
-            target="semantic",
-            cache=False,
-            mem16=False,
-            folds=None,
-            reference_date="2018-09-01",
-            class_mapping=None,
-            mono_date=None,
-            sats=["S2"],
+        self,
+        folder,
+        norm=True,
+        target="semantic",
+        cache=False,
+        mem16=False,
+        folds=None,
+        reference_date="2018-09-01",
+        class_mapping=None,
+        mono_date=None,
+        sats=["S2"],
     ):
         """
         Pytorch Dataset class to load samples from the PASTIS dataset, for semantic and
@@ -76,8 +73,12 @@ class PASTIS_Dataset(tdata.Dataset):
                 available time series is loaded. If argument is an int it defines the
                 position of the date that is loaded. If it is a string, it should be
                 in format 'YYYY-MM-DD' and the closest available date will be selected.
-            sats (list): defines the satellites to use (only Sentinel-2 is available
-                in v1.0)
+            sats (list): defines the satellites to use. If you are using PASTIS-R, you have access to
+                Sentinel-2 imagery and Sentinel-1 observations in Ascending and Descending orbits,
+                respectively S2, S1A, and S1D.
+                For example use sats=['S2', 'S1A'] for Sentinel-2 + Sentinel-1 ascending time series,
+                or sats=['S2', 'S1A','S1D'] to retrieve all time series.
+                If you are using PASTIS, only  S2 observations are available.
         """
         super(PASTIS_Dataset, self).__init__()
         self.folder = folder
@@ -117,8 +118,8 @@ class PASTIS_Dataset(tdata.Dataset):
                 d = pd.DataFrame().from_dict(date_seq, orient="index")
                 d = d[0].apply(
                     lambda x: (
-                            datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
-                            - self.reference_date
+                        datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
+                        - self.reference_date
                     ).days
                 )
                 date_table.loc[pid, d.values] = 1
@@ -144,7 +145,7 @@ class PASTIS_Dataset(tdata.Dataset):
             self.norm = {}
             for s in self.sats:
                 with open(
-                        os.path.join(folder, "NORM_{}_patch.json".format(s)), "r"
+                    os.path.join(folder, "NORM_{}_patch.json".format(s)), "r"
                 ) as file:
                     normvals = json.loads(file.read())
                 selected_folds = folds if folds is not None else range(1, 6)
@@ -185,7 +186,7 @@ class PASTIS_Dataset(tdata.Dataset):
             if self.norm is not None:
                 data = {
                     s: (d - self.norm[s][0][None, :, None, None])
-                       / self.norm[s][1][None, :, None, None]
+                    / self.norm[s][1][None, :, None, None]
                     for s, d in data.items()
                 }
 
@@ -231,7 +232,9 @@ class PASTIS_Dataset(tdata.Dataset):
                 )
 
                 if self.class_mapping is not None:
-                    pixel_semantic_annotation = self.class_mapping(pixel_semantic_annotation[0])
+                    pixel_semantic_annotation = self.class_mapping(
+                        pixel_semantic_annotation[0]
+                    )
                 else:
                     pixel_semantic_annotation = pixel_semantic_annotation[0]
 
@@ -242,8 +245,9 @@ class PASTIS_Dataset(tdata.Dataset):
                         h = (instance_ids == instance_id).any(axis=-1).sum()
                         w = (instance_ids == instance_id).any(axis=-2).sum()
                         size[pixel_to_object_mapping == instance_id] = (h, w)
-                        object_semantic_annotation[pixel_to_object_mapping == instance_id] = \
-                            pixel_semantic_annotation[instance_ids == instance_id][0]
+                        object_semantic_annotation[
+                            pixel_to_object_mapping == instance_id
+                        ] = pixel_semantic_annotation[instance_ids == instance_id][0]
 
                 target = torch.from_numpy(
                     np.concatenate(
@@ -301,73 +305,9 @@ def prepare_dates(date_dict, reference_date):
     d = pd.DataFrame().from_dict(date_dict, orient="index")
     d = d[0].apply(
         lambda x: (
-                datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
-                - reference_date
+            datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
+            - reference_date
         ).days
     )
     return d.values
 
-
-np_str_obj_array_pattern = re.compile(r"[SaUO]")
-
-
-def pad_tensor(x, l, pad_value=0):
-    padlen = l - x.shape[0]
-    pad = [0 for _ in range(2 * len(x.shape[1:]))] + [0, padlen]
-    return F.pad(x, pad=pad, value=pad_value)
-
-
-def pad_collate(batch, pad_value=0):
-    # Utility function to be used as collate_fn for the PyTorch dataloader
-    # to handle sequences of varying length.
-    # Sequences are padded with zeros by default.
-    #
-    # Modified default_collate from the official pytorch repo
-    # https://github.com/pytorch/pytorch/blob/master/torch/utils/data/_utils/collate.py
-    elem = batch[0]
-    elem_type = type(elem)
-    if isinstance(elem, torch.Tensor):
-        out = None
-        if len(elem.shape) > 0:
-            sizes = [e.shape[0] for e in batch]
-            m = max(sizes)
-            if not all(s == m for s in sizes):
-                # pad tensors which have a temporal dimension
-                batch = [pad_tensor(e, m, pad_value=pad_value) for e in batch]
-        if torch.utils.data.get_worker_info() is not None:
-            # If we're in a background process, concatenate directly into a
-            # shared memory tensor to avoid an extra copy
-            numel = sum([x.numel() for x in batch])
-            storage = elem.storage()._new_shared(numel)
-            out = elem.new(storage)
-        return torch.stack(batch, 0, out=out)
-    elif (
-            elem_type.__module__ == "numpy"
-            and elem_type.__name__ != "str_"
-            and elem_type.__name__ != "string_"
-    ):
-        if elem_type.__name__ == "ndarray" or elem_type.__name__ == "memmap":
-            # array of string classes and object
-            if np_str_obj_array_pattern.search(elem.dtype.str) is not None:
-                raise TypeError("Format not managed : {}".format(elem.dtype))
-
-            return pad_collate([torch.as_tensor(b) for b in batch])
-        elif elem.shape == ():  # scalars
-            return torch.as_tensor(batch)
-
-    elif isinstance(elem, collections.abc.Mapping):
-        return {key: pad_collate([d[key] for d in batch]) for key in elem}
-
-    elif isinstance(elem, tuple) and hasattr(elem, "_fields"):  # namedtuple
-        return elem_type(*(pad_collate(samples) for samples in zip(*batch)))
-
-    elif isinstance(elem, collections.abc.Sequence):
-        # check to make sure that the elements in batch have consistent size
-        it = iter(batch)
-        elem_size = len(next(it))
-        if not all(len(elem) == elem_size for elem in it):
-            raise RuntimeError("each element in list of batch should be of equal size")
-        transposed = zip(*batch)
-        return [pad_collate(samples) for samples in transposed]
-
-    raise TypeError("Format not managed : {}".format(elem_type))
