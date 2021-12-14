@@ -19,13 +19,13 @@ We propose an official 5 fold split provided in the dataset's metadata, and eval
 :arrow_forward:  **10 spectral bands**        | :arrow_forward: **covers ~4,000 km²**                       | :arrow_forward: **over 2B pixels**
 
 
-- **Radar extension (PASTIS-R)**
+- :fire: *NEW*: **Radar extension (PASTIS-R)**
 
 We also propose an extended version of PASTIS which contains all radar observations of Sentinel-1
 for all 2433 patches in addition to the Sentinel-2 images. For each patch, approximately 70 observations of Sentinel-1 in ascending orbit, 
 and 70 observations in descending orbit are added to the dataset. The PASTIS-R extension can thus be used to evaluate optical-radar fusion
 methods for parcel-based classification, semantic segmentation, and panoptic segmentation.  
-For more details on PASTIS-R, refer to *link coming soon*. 
+For more details on PASTIS-R, refer to our recent paper on multi-modal fusion with attention-based models (link coming soon). 
 
 
 
@@ -34,12 +34,14 @@ For more details on PASTIS-R, refer to *link coming soon*.
 
 The dataset can be downloaded from zenodo in different formats:
  1. [PASTIS](https://zenodo.org/record/5012942) (29 GB zipped) : The original PASTIS dataset for semantic and panoptic segmentation
-    on Sentinel-2 time series (format used for the ICCV 2021 paper). 
- 2. [PASTIS-R]() (54 GB zipped) : The extended version with Sentinel-1 observations.
+    on Sentinel-2 time series (format used for the [ICCV 2021 paper](https://openaccess.thecvf.com/content/ICCV2021/papers/Garnot_Panoptic_Segmentation_of_Satellite_Image_Time_Series_With_Convolutional_Temporal_ICCV_2021_paper.pdf)). [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5012942.svg)](https://doi.org/10.5281/zenodo.5012942)
+ 2. [PASTIS-R](https://zenodo.org/record/5735646) (54 GB zipped) : The extended version with Sentinel-1 observations. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5735646.svg)](https://doi.org/10.5281/zenodo.5735646)
  3. [PASTIS-R (pixel-set format)](https://zenodo.org/record/5745151) (27 GB zipped) : The PASTIS-R dataset prepared in pixel-set format 
     for parcel-based classification only. See this [repo](https://github.com/VSainteuf/pytorch-psetae) and 
     [paper](https://openaccess.thecvf.com/content_CVPR_2020/html/Garnot_Satellite_Image_Time_Series_Classification_With_Pixel-Set_Encoders_and_Temporal_CVPR_2020_paper.html)
-    for more details on this format. 
+    for more details on this format. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5745151.svg)](https://doi.org/10.5281/zenodo.5745151)
+
+
 
 
 
@@ -65,19 +67,35 @@ and the latter a semantic label.
 Please open an issue to submit new entries. Do mention if the work has been published and wether the code accessible for reproducibility. We require that at least a preprint is available to present the method used.
 
 ### Semantic Segmentation
+#### Optical only (PASTIS)
 | Model name         | #Params| OA  |  mIoU | Published |
 | ------------------ |---- |---- | ---| --- |
-| U-TAE   |   1.1M|  83.2%    | 63.1%|  :heavy_check_mark: [link](https://arxiv.org/pdf/2107.07933.pdf)|
+| U-TAE   |   1.1M|  83.2%    | 63.1%|  :heavy_check_mark: [link](https://openaccess.thecvf.com/content/ICCV2021/papers/Garnot_Panoptic_Segmentation_of_Satellite_Image_Time_Series_With_Convolutional_Temporal_ICCV_2021_paper.pdf)|
 | Unet-3d*   | 1.6M|    81.3%    |  58.4%| :heavy_check_mark: [link](http://openaccess.thecvf.com/content_CVPRW_2019/html/cv4gc/Rustowicz_Semantic_Segmentation_of_Crop_Type_in_Africa_A_Novel_Dataset_CVPRW_2019_paper.html)|
 | Unet-ConvLSTM* |1.5M  |     82.1%    |  57.8%| :heavy_check_mark: [link](http://openaccess.thecvf.com/content_CVPRW_2019/html/cv4gc/Rustowicz_Semantic_Segmentation_of_Crop_Type_in_Africa_A_Novel_Dataset_CVPRW_2019_paper.html)|
 | FPN-ConvLSTM*  | 1.3M|    81.6%   |  57.1%|:heavy_check_mark: [link](https://www.sciencedirect.com/science/article/pii/S0924271620303142?casa_token=uhkmVE-Lk94AAAAA:r6USZEEFMFE2qc2uYZSrqTzy1_DSI9hflG2cVeay-2Bd-PHFIg3CPwgisf7jatDDfRnR4ROzN9k)|
-
 Models that we re-implemented ourselves are denoted with a star (*).
 
+#### Optical+Radar fusion (PASTIS-R)
+| Model name         | #Params| OA  |  mIoU | Published |
+| ------------------ |---- |---- | ---| --- |
+| Late Fusion (U-TAE)  + Aux + TempDrop|   1.7M|  84.2%    | 66.3%|  :heavy_check_mark: [link]()|
+| Early Fusion (U-TAE) + TempDrop|   1.6M|  83.8%    | 65.9%|  :heavy_check_mark: [link]()|
+
+
 ### Panoptic Segmentation
-| Model name         | SQ  | RQ | PQ|
-| ------------------ |--- | --- |--- |
-| U-TAE + PaPs       | 81.3|49.2 |40.4|
+#### Optical only (PASTIS)
+
+| Model name         | #Params| SQ  | RQ | PQ| Published |
+| ------------------ |--- |--- | --- |--- |--- |
+| U-TAE + PaPs       |1.3M | 81.3|49.2 |40.4| :heavy_check_mark: [link](https://openaccess.thecvf.com/content/ICCV2021/papers/Garnot_Panoptic_Segmentation_of_Satellite_Image_Time_Series_With_Convolutional_Temporal_ICCV_2021_paper.pdf)|
+
+#### Optical+Radar fusion (PASTIS-R)
+
+| Model name         |#Params| SQ  | RQ | PQ|Published |
+| ------------------ |--- |--- | --- |--- |--- |
+| Early Fusion (U-TAE + PaPs) + Aux + TempDrop  | 1.8M     | 82.2|50.6 |42.0|:heavy_check_mark: [link]()|
+| Late Fusion (U-TAE + PaPs) +  TempDrop |   2.4M| 81.6|50.5 |41.6|:heavy_check_mark: [link]()|
 
 ## Documentation
 The agricultural parcels are grouped into 18 different crop classes as shown in the 
@@ -97,7 +115,15 @@ with Convolutional Temporal Attention Networks},
   year={2021}
 }
 ```
-
+For the PASTIS-R optical-radar fusion dataset, please also cite [this paper]():
+```
+@article{garnot2021mmfusion,
+  title={Multi-Modal Temporal Attention Models for Crop Mapping from Satellite Time Series},
+  author={Sainte Fare Garnot, Vivien  and Landrieu, Loic and Chehata, Nesrine },
+  journal={arxiv},
+  year={2021}
+}
+```
 ## Credits
 
 - The satellite imagery used in PASTIS was retrieved from [THEIA](www.theia.land.fr): 
@@ -108,3 +134,5 @@ The treatments use algorithms developed by Theia’s Scientific Expertise Centre
  by IGN, the French mapping agency.
  
 - This work was partly supported by [ASP](https://www.asp-public.fr), the French Payment Agency. 
+
+- We also thank Zenodo for hosting the datasets. 
