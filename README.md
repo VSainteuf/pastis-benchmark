@@ -72,6 +72,7 @@ Please open an issue to submit new entries. Do mention if the work has been publ
 | Unet-3d*   | 1.6M|    81.3%    |  58.4%| :heavy_check_mark: [link](http://openaccess.thecvf.com/content_CVPRW_2019/html/cv4gc/Rustowicz_Semantic_Segmentation_of_Crop_Type_in_Africa_A_Novel_Dataset_CVPRW_2019_paper.html)|
 | Unet-ConvLSTM* |1.5M  |     82.1%    |  57.8%| :heavy_check_mark: [link](http://openaccess.thecvf.com/content_CVPRW_2019/html/cv4gc/Rustowicz_Semantic_Segmentation_of_Crop_Type_in_Africa_A_Novel_Dataset_CVPRW_2019_paper.html)|
 | FPN-ConvLSTM*  | 1.3M|    81.6%   |  57.1%|:heavy_check_mark: [link](https://www.sciencedirect.com/science/article/pii/S0924271620303142?casa_token=uhkmVE-Lk94AAAAA:r6USZEEFMFE2qc2uYZSrqTzy1_DSI9hflG2cVeay-2Bd-PHFIg3CPwgisf7jatDDfRnR4ROzN9k)|
+
 Models that we re-implemented ourselves are denoted with a star (*).
 
 ---
@@ -98,8 +99,8 @@ Models that we re-implemented ourselves are denoted with a star (*).
 
 | Model name         |#Params| SQ  | RQ | PQ|Published |
 | ------------------ |--- |--- | --- |--- |--- |
-| S1+S2 U-TAE + PaPs (early fusion)  | 1.8M |**82.2**|**50.6** |**42.0**|:heavy_check_mark: [link]()|
-| S1+S2 U-TAE + PaPs (late fusion)   | 2.4M | 81.6   |50.5     |41.6    |:heavy_check_mark: [link]()|
+| S1+S2 U-TAE + PaPs (early fusion)  | 1.8M |**82.2**|**50.6** |**42.0**|:heavy_check_mark: [link](https://arxiv.org/abs/2112.07558v1)|
+| S1+S2 U-TAE + PaPs (late fusion)   | 2.4M | 81.6   |50.5     |41.6    |:heavy_check_mark: [link](https://arxiv.org/abs/2112.07558v1)|
 
 ## Documentation
 The agricultural parcels are grouped into 18 different crop classes as shown in the 
