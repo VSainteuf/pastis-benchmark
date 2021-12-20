@@ -2,7 +2,8 @@
 Code used to compute the centerness ground truth.
 This code is not fully functional, we show how to compute
 the ground truth for one patch to illustrate how Eq. 6 of the 
-paper was implemented.
+ICCV2021 paper was implemented.
+
 Author: Vivien Sainte Fare Garnot (github.com/VSainteuf)
 License MIT
 """
