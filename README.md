@@ -123,10 +123,11 @@ with Convolutional Temporal Attention Networks},
 For the PASTIS-R optical-radar fusion dataset, please also cite [this paper](https://arxiv.org/abs/2112.07558v1):
 ```
 @article{garnot2021mmfusion,
-  title={Multi-Modal Temporal Attention Models for Crop Mapping from Satellite Time Series},
-  author={Sainte Fare Garnot, Vivien  and Landrieu, Loic and Chehata, Nesrine },
-  journal={arxiv},
-  year={2021}
+  title    = {Multi-modal temporal attention models for crop mapping from satellite time series},
+  journal  = {ISPRS Journal of Photogrammetry and Remote Sensing},
+  year     = {2022},
+  doi      = {https://doi.org/10.1016/j.isprsjprs.2022.03.012},
+  author   = {Vivien {Sainte Fare Garnot} and Loic Landrieu and Nesrine Chehata},
 }
 ```
 ## Credits
