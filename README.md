@@ -25,7 +25,9 @@ We extend PASTIS with aligned radar Sentinel-1 observations for all 2433 patches
 PASTIS-R can be used to evaluate optical-radar fusion methods for parcel-based classification, semantic segmentation, and panoptic segmentation.  
 For more details on PASTIS-R, refer to our recent paper on multi-modal fusion with attention-based models ([preprint](https://arxiv.org/abs/2112.07558v1)). 
 
+## Updates
 
+- **27.06.2022 Major Bugfix** :beetle: A bug in the panoptic metrics was driving the Recognition Quality down artificially. The bug is now fixed and the metrics have been updated here and on Arxiv. Across experiments, solving this bug improved PQ by ~2-3pts on PASTIS. See [this issue](https://github.com/VSainteuf/utae-paps/issues/11) for more details. If you have been using the PASTIS benchmark, you can simply re-evaluate your models with the corrected implementation.
 
 ## Usage 
 - **Download** 
@@ -90,12 +92,14 @@ Models that we re-implemented ourselves are denoted with a star (*).
 
 | Model name         | #Params| SQ  | RQ | PQ| Published |
 | ------------------ |--- |--- | --- |--- |--- |
-| U-TAE + PaPs       |1.3M | **81.3**|**49.2** |**40.4**| :heavy_check_mark: [link](https://openaccess.thecvf.com/content/ICCV2021/papers/Garnot_Panoptic_Segmentation_of_Satellite_Image_Time_Series_With_Convolutional_Temporal_ICCV_2021_paper.pdf)|
-| U-ConvLSTM + PaPs  |1.7M | 80.9    |40.8     |33.4    | :heavy_check_mark: [link](https://openaccess.thecvf.com/content/ICCV2021/papers/Garnot_Panoptic_Segmentation_of_Satellite_Image_Time_Series_With_Convolutional_Temporal_ICCV_2021_paper.pdf)|
+| U-TAE + PaPs       |1.3M | **81.5**|**53.2** |**43.8**| :heavy_check_mark: [link](https://openaccess.thecvf.com/content/ICCV2021/papers/Garnot_Panoptic_Segmentation_of_Satellite_Image_Time_Series_With_Convolutional_Temporal_ICCV_2021_paper.pdf)|
+| U-ConvLSTM + PaPs  |1.7M | 80.2    |43.9     |35.6    | :heavy_check_mark: [link](https://openaccess.thecvf.com/content/ICCV2021/papers/Garnot_Panoptic_Segmentation_of_Satellite_Image_Time_Series_With_Convolutional_Temporal_ICCV_2021_paper.pdf)|
 
 ---
 
 #### Optical+Radar fusion (PASTIS-R)
+
+**These values are still affected by the bug in the metrics computation, they will be re-evaluated shortly.**
 
 | Model name         |#Params| SQ  | RQ | PQ|Published |
 | ------------------ |--- |--- | --- |--- |--- |
