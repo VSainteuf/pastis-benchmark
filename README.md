@@ -50,7 +50,6 @@ For the pixel-set dataset, use the dataloader in `code/dataloader_pixelset.py`.
 The time series contained in PASTIS have variable lengths. The `code/collate.py` 
 contains a `pad_collate` function that you can use in the pytorch dataloader to temporally pad shorter sequences. 
 
-
 - **Metrics** 
 
 We propose a PyTorch implementation of panoptic metrics in `code/panoptic_metrics.py`.
@@ -62,8 +61,16 @@ and a semantic prediction *for each pixel*.
 
 See our notebook `demo.ipynb` for example of data manipulation and several visualization functions for semantic and panoptic segmentation.
 
+- **Architectures**
+
+Pre-trained weights and implementation of **U-TAE** and **PaPs** are available on the [model repository](https://github.com/VSainteuf/utae-paps).
+
+
+
+
 ## Leaderboard
 Please open an issue to submit new entries. Do mention if the work has been published and wether the code accessible for reproducibility. We require that at least a preprint is available to add an entry.
+
 
 ---
 ### Semantic Segmentation
