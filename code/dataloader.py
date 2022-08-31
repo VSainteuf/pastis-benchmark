@@ -88,8 +88,8 @@ class PASTIS_Dataset(tdata.Dataset):
         self.mem16 = mem16
         self.mono_date = (
             datetime(*map(int, mono_date.split("-")))
-            if isinstance(mono_date, str)
-            else mono_date
+            if "-" in mono_date
+            else int(mono_date)
         )
         self.memory = {}
         self.memory_dates = {}
@@ -286,13 +286,15 @@ class PASTIS_Dataset(tdata.Dataset):
 
         if self.mono_date is not None:
             if isinstance(self.mono_date, int):
-                data = data[self.mono_date]
-                dates = dates[self.mono_date]
+                data = {s: data[s][self.mono_date].unsqueeze(0) for s in self.sats}
+                dates = {s: dates[s][self.mono_date] for s in self.sats}
             else:
                 mono_delta = (self.mono_date - self.reference_date).days
-                mono_date = (dates - mono_delta).abs().argmin()
-                data = data[mono_date]
-                dates = dates[mono_date]
+                mono_date = {
+                    s: int((dates[s] - mono_delta).abs().argmin()) for s in self.sats
+                }
+                data = {s: data[s][mono_date[s]].unsqueeze(0) for s in self.sats}
+                dates = {s: dates[s][mono_date[s]] for s in self.sats}
 
         if self.mem16:
             return ({k: v.float() for k, v in data.items()}, dates), target
