@@ -86,11 +86,13 @@ class PASTIS_Dataset(tdata.Dataset):
         self.reference_date = datetime(*map(int, reference_date.split("-")))
         self.cache = cache
         self.mem16 = mem16
-        self.mono_date = (
-            datetime(*map(int, mono_date.split("-")))
-            if "-" in mono_date
-            else int(mono_date)
-        )
+        self.mono_date = None
+        if mono_date is not None:
+            self.mono_date = (
+                datetime(*map(int, mono_date.split("-")))
+                if "-" in mono_date
+                else int(mono_date)
+            )
         self.memory = {}
         self.memory_dates = {}
         self.class_mapping = (
