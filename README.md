@@ -77,12 +77,15 @@ Please open an issue to submit new entries. Do mention if the work has been publ
 #### Optical only (PASTIS)
 | Model name         | #Params| OA  |  mIoU | Published |
 | ------------------ |---- |---- | ---| --- |
-| U-TAE   |   1.1M| **83.2%**   | **63.1%**|  :heavy_check_mark: [link](https://openaccess.thecvf.com/content/ICCV2021/papers/Garnot_Panoptic_Segmentation_of_Satellite_Image_Time_Series_With_Convolutional_Temporal_ICCV_2021_paper.pdf)|
+| TSViT &dagger;   | 1.6M|    83.4%    |  65.4%| :heavy_check_mark: [link](https://arxiv.org/pdf/2301.04944.pdf)|
+| U-TAE   |   1.1M| 83.2%   | 63.1%|  :heavy_check_mark: [link](https://openaccess.thecvf.com/content/ICCV2021/papers/Garnot_Panoptic_Segmentation_of_Satellite_Image_Time_Series_With_Convolutional_Temporal_ICCV_2021_paper.pdf)|
 | Unet-3d*   | 1.6M|    81.3%    |  58.4%| :heavy_check_mark: [link](http://openaccess.thecvf.com/content_CVPRW_2019/html/cv4gc/Rustowicz_Semantic_Segmentation_of_Crop_Type_in_Africa_A_Novel_Dataset_CVPRW_2019_paper.html)|
 | Unet-ConvLSTM* |1.5M  |     82.1%    |  57.8%| :heavy_check_mark: [link](http://openaccess.thecvf.com/content_CVPRW_2019/html/cv4gc/Rustowicz_Semantic_Segmentation_of_Crop_Type_in_Africa_A_Novel_Dataset_CVPRW_2019_paper.html)|
 | FPN-ConvLSTM*  | 1.3M|    81.6%   |  57.1%|:heavy_check_mark: [link](https://www.sciencedirect.com/science/article/pii/S0924271620303142?casa_token=uhkmVE-Lk94AAAAA:r6USZEEFMFE2qc2uYZSrqTzy1_DSI9hflG2cVeay-2Bd-PHFIg3CPwgisf7jatDDfRnR4ROzN9k)|
 
-Models that we re-implemented ourselves are denoted with a star (*).
+(*) Models that we re-implemented ourselves are denoted with a star.
+
+(&dagger;) TSViT operates on [PASTIS24](https://github.com/michaeltrs/DeepSatModels/blob/main/README_TSVIT.md), where each sample is split into 24x24px sub-patches.
 
 ---
 
