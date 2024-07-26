@@ -116,7 +116,7 @@ class PASTIS_Dataset(tdata.Dataset):
             date_table = pd.DataFrame(
                 index=self.meta_patch.index, columns=self.date_range, dtype=int
             )
-            for pid, date_seq in dates.iteritems():
+            for pid, date_seq in dates.items():
                 d = pd.DataFrame().from_dict(date_seq, orient="index")
                 d = d[0].apply(
                     lambda x: (
@@ -314,4 +314,3 @@ def prepare_dates(date_dict, reference_date):
         ).days
     )
     return d.values
-

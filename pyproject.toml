@@ -1,0 +1,24 @@
+[tool.poetry]
+description = ""
+authors = ["LouisStef <louis.stefanuto@gamil.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+torch = "^2.3.0"
+numpy = "^1.26.4"
+matplotlib = "^3.9.0"
+geopandas = "^0.14.4"
+tqdm = "^4.66.4"
+torchvision = "^0.18.0"
+torchmetrics = "^1.4.0.post0"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.4"
+nbstripout = "^0.7.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

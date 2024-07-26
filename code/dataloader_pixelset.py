@@ -5,7 +5,6 @@ License MIT
 
 import json
 import os
-
 from datetime import datetime
 
 import geopandas as gpd
@@ -19,21 +18,21 @@ from torch.nn import functional as F
 
 class PASTIS_Dataset_PixelSet(data.Dataset):
     def __init__(
-            self,
-            folder,
-            norm=True,
-            cache=False,
-            sats=["S2"],
-            reference_date="2018-09-01",
-            n_pixel=32,
-            geom_features=True,
-            folds=None,
-            ignore_label=None,
-            label_offset=1,
-            class_mapping=None,
-            interpolate=False,
-            drop_temp_s2=0,
-            drop_temp_s1=0,
+        self,
+        folder,
+        norm=True,
+        cache=False,
+        sats=["S2"],
+        reference_date="2018-09-01",
+        n_pixel=32,
+        geom_features=True,
+        folds=None,
+        ignore_label=None,
+        label_offset=1,
+        class_mapping=None,
+        interpolate=False,
+        drop_temp_s2=0,
+        drop_temp_s1=0,
     ):
         """
         Pytorch Dataset class to load samples from the PASTIS-R dataset in pixel-set
@@ -123,12 +122,12 @@ class PASTIS_Dataset_PixelSet(data.Dataset):
             date_table = pd.DataFrame(
                 index=self.meta_patch.index, columns=self.date_range, dtype=int
             )
-            for pid, date_seq in dates.iteritems():
+            for pid, date_seq in dates.items():
                 d = pd.DataFrame().from_dict(date_seq, orient="index")
                 d = d[0].apply(
                     lambda x: (
-                            datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
-                            - self.reference_date
+                        datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
+                        - self.reference_date
                     ).days
                 )
                 date_table.loc[pid, d.values] = 1
@@ -158,7 +157,7 @@ class PASTIS_Dataset_PixelSet(data.Dataset):
             self.norm = {}
             for s in self.sats:
                 with open(
-                        os.path.join(folder, "NORM_PARCEL_{}_set.json".format(s)), "r"
+                    os.path.join(folder, "NORM_PARCEL_{}_set.json".format(s)), "r"
                 ) as file:
                     normvals = json.loads(file.read())
                 selected_folds = folds if folds is not None else range(1, 6)
@@ -243,11 +242,11 @@ class PASTIS_Dataset_PixelSet(data.Dataset):
             for sat in self.sats:
                 if "S1" in sat:
                     selected_dates[sat] = (
-                            np.random.rand(data[sat][0].shape[0]) > self.drop_temp_s1
+                        np.random.rand(data[sat][0].shape[0]) > self.drop_temp_s1
                     )
                 elif "S2" in sat:
                     selected_dates[sat] = (
-                            np.random.rand(data["S2"][0].shape[0]) > self.drop_temp_s2
+                        np.random.rand(data["S2"][0].shape[0]) > self.drop_temp_s2
                     )
             data = {sat: (d[0][selected_dates[sat]], d[1]) for sat, d in data.items()}
             dates = {s: d[selected_dates[s.split("-")[1]]] for s, d in dates.items()}
@@ -332,9 +331,8 @@ def prepare_dates(date_dict, reference_date):
     d = pd.DataFrame().from_dict(date_dict, orient="index")
     d = d[0].apply(
         lambda x: (
-                datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
-                - reference_date
+            datetime(int(str(x)[:4]), int(str(x)[4:6]), int(str(x)[6:]))
+            - reference_date
         ).days
     )
     return d.values
-
