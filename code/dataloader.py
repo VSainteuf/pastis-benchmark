@@ -117,6 +117,8 @@ class PASTIS_Dataset(tdata.Dataset):
                 index=self.meta_patch.index, columns=self.date_range, dtype=int
             )
             for pid, date_seq in dates.items():
+                if type(date_seq) == str:
+                    date_seq = json.loads(date_seq)
                 d = pd.DataFrame().from_dict(date_seq, orient="index")
                 d = d[0].apply(
                     lambda x: (
