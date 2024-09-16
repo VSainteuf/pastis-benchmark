@@ -1,6 +1,3 @@
-from code.baseline_dataset import BaselineDataset
-from code.collate import pad_collate
-
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
@@ -8,6 +5,10 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchmetrics.segmentation import MeanIoU
 from tqdm import tqdm
+
+from src.baseline_dataset import BaselineDataset
+from src.collate import pad_collate
+from src.unet import UNet
 
 
 def main(
@@ -29,14 +30,17 @@ def main(
     )
 
     # Model
-    unet = torch.hub.load(
-        "mateuszbuda/brain-segmentation-pytorch",
-        "unet",
-        in_channels=num_channels,
-        out_channels=num_classes,
-        init_features=init_features,
-        pretrained=False,
-    ).to(device)
+    # unet = torch.hub.load(
+    #     "mateuszbuda/brain-segmentation-pytorch",
+    #     "unet",
+    #     in_channels=num_channels,
+    #     out_channels=num_classes,
+    #     init_features=init_features,
+    #     pretrained=False,
+    # )
+    unet = UNet(num_channels, num_classes)
+    unet.to(device)
+
     pytorch_total_params = sum(p.numel() for p in unet.parameters() if p.requires_grad)
     print("UNet Model ready.")
     print(unet)
@@ -67,7 +71,9 @@ def main(
             scheduler.step(loss)
 
             running_loss += loss.item()
-            iou = mean_iou(torch.argmax(outputs, dim=1), y.to(device))
+
+            preds = torch.argmax(outputs, dim=1)
+            iou = mean_iou(preds, y.to(device))
             running_iou += iou.item()
 
         epoch_loss = running_loss / len(train_loader)
@@ -76,6 +82,7 @@ def main(
         epoch_ious.append(epoch_iou)
 
         print(
+            # f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.5f}"
             f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.5f}, IoU: {epoch_iou:.5f}"
         )
         for group in optimizer.param_groups:
@@ -112,10 +119,10 @@ if __name__ == "__main__":
         "mini_dataset": True,
         "num_channels": 10,
         "num_classes": 20,
-        "init_features": 32,
+        "init_features": 16,
         "batch_size": 32,
-        "lr": 1e-3,
-        "num_epochs": 1000,
+        "lr": 1e-4,
+        "num_epochs": 100,
         "device": "mps",  # cpu, gpu, mps (metal chips on Mac)
         "scheduler": {"mode": "min", "factor": 0.1, "patience": 50},
     }

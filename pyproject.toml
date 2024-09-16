@@ -1,6 +1,6 @@
 [tool.poetry]
 description = ""
-authors = ["LouisStef <louis.stefanuto@gamil.com>"]
+authors = ["LouisStef <louis.stefanuto@gmail.com>"]
 readme = "README.md"
 package-mode = false
 
