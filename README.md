@@ -2,6 +2,14 @@
 
 ## Install
 
+Create a virtual environment with python 3.12:
+
+    conda create -n env_challenge python=3.12
+    conda activate env_challenge
+
+Install the project
+
+    pip install poetry
     poetry install --with dev
 
 ### Download dataset
