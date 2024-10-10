@@ -135,3 +135,10 @@ dmypy.json
 PASTIS*/
 *.npy
 *.zip
+
+TRAIN/
+TEST/
+DATA/
+DATA-MINI/
+
+*.csv

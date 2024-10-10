@@ -1,8 +1,9 @@
 [tool.poetry]
-description = ""
+name = "baseline"
+version = "0.1.0"
+description = "Baseline for the Invent x Mines 2024 Data Challenge"
 authors = ["LouisStef <louis.stefanuto@gmail.com>"]
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -14,6 +15,8 @@ tqdm = "^4.66.4"
 torchvision = "^0.18.0"
 torchmetrics = "^1.4.0.post0"
 mkdocs-material = "^9.5.34"
+scikit-learn = "^1.5.2"
+kaggle = "^1.6.17"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -67,5 +67,4 @@ class UNet(nn.Module):
         out = self.outconv(xd42)
 
         # return out
-        # return softmax(out, dim=1)
-        return out
+        return softmax(out, dim=1)

@@ -18,7 +18,7 @@ class BaselineDataset(torch.utils.data.Dataset):
         print("Reading patch metadata ...")
         json_name = "metadata_mini.geojson" if mini_dataset else "metadata.geojson"
         self.meta_patch = gpd.read_file(os.path.join(folder, json_name))
-        self.meta_patch.index = self.meta_patch["ID_PATCH"].astype(int)
+        self.meta_patch.index = self.meta_patch["ID"].astype(int)
         self.meta_patch.sort_index(inplace=True)
         print("Done.")
 

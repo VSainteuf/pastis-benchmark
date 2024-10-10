@@ -6,9 +6,9 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchmetrics.segmentation import MeanIoU
 from tqdm import tqdm
 
-from src.baseline_dataset import BaselineDataset
-from src.collate import pad_collate
-from src.unet import UNet
+from baseline.dataset import BaselineDataset
+from baseline.collate import pad_collate
+from baseline.unet import UNet
 
 
 def main(
@@ -29,15 +29,6 @@ def main(
         dt, batch_size=batch_size, collate_fn=pad_collate, shuffle=True
     )
 
-    # Model
-    # unet = torch.hub.load(
-    #     "mateuszbuda/brain-segmentation-pytorch",
-    #     "unet",
-    #     in_channels=num_channels,
-    #     out_channels=num_classes,
-    #     init_features=init_features,
-    #     pretrained=False,
-    # )
     unet = UNet(num_channels, num_classes)
     unet.to(device)
 
@@ -63,6 +54,8 @@ def main(
         for x, y in tqdm(train_loader):
             optimizer.zero_grad()
 
+            # Note: for the baseline, we only use the first image of the sequence.
+            # To achieve satisfying results, you will have to use the whole sequence for each tile.
             outputs = unet(x["S2"][:, 0, :, :, :].to(device))
 
             loss = criterion(outputs, y.to(device))
@@ -115,8 +108,8 @@ def plot_metrics(epoch_losses, epoch_ious, num_epochs):
 if __name__ == "__main__":
     # Fill these file paths with the locations on your machine.
     training_args = {
-        "data_folder": "/Users/lstefanu/Documents/mines/pastis-benchmark/PASTIS/",
-        "mini_dataset": True,
+        "data_folder": "./PASTIS-mini/TRAIN",
+        "mini_dataset": False,
         "num_channels": 10,
         "num_classes": 20,
         "init_features": 16,
